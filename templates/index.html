@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Document Summarizer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Legal Document Summarizer</div>
+    </div>
+    
+    <div class="chat-container" id="chatContainer">
+        <div class="message">
+            <p>Upload a legal document (PDF, DOCX, or TXT) to get a simplified summary and explanation of legal terms.</p>
+        </div>
+    </div>
+    
+    <div class="input-area">
+        <input type="file" id="fileUpload" class="upload-btn" accept=".pdf,.docx,.txt">
+        <label for="fileUpload" class="upload-label" id="uploadLabel">
+            <i class="fas fa-file-upload"></i>
+            <span>Upload Document</span>
+        </label>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
