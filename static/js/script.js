@@ -2,12 +2,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatContainer = document.getElementById('chatContainer');
     const fileUpload = document.getElementById('fileUpload');
     const uploadLabel = document.getElementById('uploadLabel');
-    
+
     fileUpload.addEventListener('change', async (e) => {
         if (!e.target.files.length) return;
         
         const file = e.target.files[0];
-        addMessage(file.name, true);
+        addMessage(`Processing: ${file.name}`, true);
         
         // Show loading state
         uploadLabel.innerHTML = '<div class="spinner"></div> Processing...';
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function addMessage(text, isUser, title = '') {
         const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${isUser ? 'user-message' : ''}`;
+        messageDiv.className = isUser ? 'message user-message' : 'summary-tile';
         
         if (title) {
             messageDiv.innerHTML = `<strong>${title}</strong><br><br>${text}`;

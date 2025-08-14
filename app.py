@@ -3,7 +3,7 @@ from werkzeug.utils import secure_filename
 from summarizer import extract_text_from_file, generate_summary, simplify_jargon
 import os
 import logging
-import torch  # Add this import
+import torch
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 app.config.update(
@@ -15,7 +15,14 @@ app.config.update(
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Allowed file extensions
+ALLOWED_EXTENSIONS = {'pdf', 'docx', 'txt', 'png', 'jpg', 'jpeg', 'bmp'}
+
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
 def index():
@@ -31,6 +38,9 @@ def summarize():
     if file.filename == '':
         logger.error("Empty filename")
         return jsonify({"error": "No file selected"}), 400
+    if not allowed_file(file.filename):
+        logger.error("Invalid file type")
+        return jsonify({"error": "File type not supported"}), 400
 
     try:
         filename = secure_filename(file.filename)
@@ -47,7 +57,8 @@ def summarize():
         return jsonify({
             'summary': summary,
             'jargon': simplified,
-            'device': 'gpu' if torch.cuda.is_available() else 'cpu'
+            'device': 'gpu' if torch.cuda.is_available() else 'cpu',
+            'text': text[:500] + "..." if len(text) > 500 else text  # Return first 500 chars for preview
         })
 
     except Exception as e:
@@ -57,6 +68,5 @@ def summarize():
         if os.path.exists(filepath):
             os.remove(filepath)
 
-# Add this block to ensure the app runs
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
