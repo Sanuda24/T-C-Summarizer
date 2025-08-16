@@ -12,19 +12,23 @@ import numpy as np
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# GPU/CPU setup
-device = "cuda:0" if torch.cuda.is_available() else "cpu"
-if "cuda" in device:
+import torch
+from transformers import pipeline
+
+# ---- Device setup ----
+use_cuda = torch.cuda.is_available()
+device_index = 0 if use_cuda else -1
+
+if use_cuda:
     logger.info(f"🚀 Using GPU: {torch.cuda.get_device_name(0)}")
 else:
     logger.warning("⚠️ Using CPU (No GPU detected)")
 
-# Initialize model
+# ---- Summarizer pipeline ----
 summarizer = pipeline(
     "summarization",
     model="facebook/bart-large-cnn",
-    device=device,
-    batch_size=2 if "cuda" in device else 1
+    device=device_index
 )
 
 def extract_text_from_image(image_path):
