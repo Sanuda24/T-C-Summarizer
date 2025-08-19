@@ -57,8 +57,8 @@ def summarize():
         return jsonify({
             'summary': summary,
             'jargon': simplified,
-            'device': 'gpu' if torch.cuda.is_available() else 'cpu',
-            'text': text[:500] + "..." if len(text) > 500 else text  # Return first 500 chars for preview
+            
+             
         })
 
     except Exception as e:

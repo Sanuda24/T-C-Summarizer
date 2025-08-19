@@ -7,6 +7,9 @@ from PIL import Image
 import pytesseract
 import cv2
 import numpy as np
+from transformers import BartTokenizer, BartForConditionalGeneration, pipeline
+from peft import PeftModel
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -24,10 +27,17 @@ if use_cuda:
 else:
     logger.warning("⚠️ Using CPU (No GPU detected)")
 
+base_model_name = "facebook/bart-base"
+model = BartForConditionalGeneration.from_pretrained(base_model_name).to("cuda" if use_cuda else "cpu")
+model = PeftModel.from_pretrained(model, "./legal-summarizer-lora")  # Path to your LoRA model
+tokenizer = BartTokenizer.from_pretrained("./legal-summarizer-lora")
+
 # ---- Summarizer pipeline ----
+
 summarizer = pipeline(
     "summarization",
-    model="facebook/bart-large-cnn",
+    model=model,
+    tokenizer=tokenizer,
     device=device_index
 )
 
@@ -100,8 +110,3 @@ def simplify_jargon(text):
     }
     return {term: meaning for term, meaning in dictionary.items() if term in text.lower()}
 
-if __name__ == '__main__':
-    # Test OCR functionality
-    test_text = extract_text_from_image("test_image.png")
-    print("Extracted Text:", test_text)
-    print("Summary:", generate_summary(test_text))

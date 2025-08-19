@@ -3,13 +3,4 @@
 
 # Python cache files
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
 
-# Logs
-*.log
-
-# OS files
-.DS_Store
-Thumbs.db
