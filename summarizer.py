@@ -11,14 +11,12 @@ from transformers import BartTokenizer, BartForConditionalGeneration, pipeline
 from peft import PeftModel
 
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 import torch
 from transformers import pipeline
 
-# ---- Device setup ----
 use_cuda = torch.cuda.is_available()
 device_index = 0 if use_cuda else -1
 
@@ -29,10 +27,10 @@ else:
 
 base_model_name = "facebook/bart-base"
 model = BartForConditionalGeneration.from_pretrained(base_model_name).to("cuda" if use_cuda else "cpu")
-model = PeftModel.from_pretrained(model, "./legal-summarizer-lora")  # Path to your LoRA model
+model = PeftModel.from_pretrained(model, "./legal-summarizer-lora")
 tokenizer = BartTokenizer.from_pretrained("./legal-summarizer-lora")
 
-# ---- Summarizer pipeline ----
+#Summarizer pipeline
 
 summarizer = pipeline(
     "summarization",
@@ -44,14 +42,11 @@ summarizer = pipeline(
 def extract_text_from_image(image_path):
     """Extract text from images using OCR"""
     try:
-        # Read image with OpenCV
+       
         img = cv2.imread(image_path)
-        
-        # Preprocess image
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         processed_img = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
         
-        # Perform OCR
         text = pytesseract.image_to_string(processed_img)
         return text.strip()
     except Exception as e:
@@ -88,7 +83,7 @@ def generate_summary(text):
             s['summary_text'] 
             for s in summarizer(
                 chunks,
-                max_length=120,
+                max_new_tokens=256,
                 min_length=40,
                 do_sample=False
             )
