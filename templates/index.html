@@ -10,6 +10,25 @@
 <body>
     <div class="header">
         <div class="logo">Legal Document Summarizer</div>
+
+        <div class="profile-menu">
+            <button id="profileBtn" class="profile-btn">
+                <i class="fa-regular fa-user"></i>
+                <span>Profile</span>
+                <i class="fa-solid fa-caret-down"></i>
+            </button>
+            <div class="dropdown" id="dropdownMenu">
+                {% if user %}
+                    <a href="{{ url_for('settings') }}"><i class="fa-solid fa-gear"></i> Settings</a>
+                    <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                {% elif guest %}
+                    <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+                    <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Logout (Guest)</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+                {% endif %}
+            </div>
+        </div>
     </div>
     
     <div class="chat-container" id="chatContainer">
@@ -19,13 +38,16 @@
     </div>
     
     <div class="input-area">
-        <input type="file" id="fileUpload" class="upload-btn" accept=".pdf,.docx,.txt">
+        <input type="file" id="fileUpload" class="upload-btn" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg,.bmp">
         <label for="fileUpload" class="upload-label" id="uploadLabel">
             <i class="fas fa-file-upload"></i>
             <span>Upload Document</span>
         </label>
     </div>
 
+    
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
 </body>
 </html>

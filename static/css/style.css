@@ -114,3 +114,102 @@ body {
     color: var(--primary);
     font-weight: bold;
 }
+
+
+.auth-card {
+    background: var(--card);
+    width: 90%;
+    max-width: 480px;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.auth-card h2 {
+    margin: 0 0 12px 0;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.auth-form input {
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 1rem;
+    background: #fff;
+}
+.auth-form button {
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+.auth-form button:hover { filter: brightness(0.95); }
+
+.form-error { color: #b00020; margin: 8px 0; }
+.form-success { color: #0a7a38; margin: 8px 0; }
+.hint { color: #666; font-size: 0.9rem; }
+
+/* ---- profile dropdown ---- */
+.profile-menu {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+}
+.profile-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+.profile-btn:hover { background: #fff; }
+
+.dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 8px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    min-width: 180px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+    z-index: 50;
+}
+.dropdown a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    text-decoration: none;
+    color: var(--text);
+}
+.dropdown a:hover { background: #f7f7f7; }
+.dropdown.show { display: block; }
+
+.back-btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    background: transparent;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.back-btn:hover {
+    background: var(--primary);
+    color: #fff;
+}
+
