@@ -1,19 +1,25 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, send_file
 from werkzeug.utils import secure_filename
 from summarizer import extract_text_from_file, generate_summary, simplify_jargon
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
+from datetime import datetime
 from datetime import timedelta
+from bson import ObjectId
 import os
 import logging
 import re
 import torch
+import time, concurrent.futures
+import numpy as np
+import requests
+import io, csv
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 app.config.update(
     UPLOAD_FOLDER='uploads',
     MAX_CONTENT_LENGTH=32 * 1024 * 1024,  
-    MONGO_URI="mongodb://localhost:27017/TCproject",   
+    MONGO_URI="mongodb+srv://Users:1234@cluster0.smh0yjv.mongodb.net/TCproject?retryWrites=true&w=majority&appName=Cluster0",   
     PERMANENT_SESSION_LIFETIME=timedelta(days=7),
 )
 app.secret_key = "123"  
@@ -50,19 +56,31 @@ def root():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-        if 'user' in session or 'guest' in session:
+        if 'user' in session or 'guest' in session or 'admin' in session:
+            if 'admin' in session:
+                return redirect(url_for('admin_dashboard'))
             return redirect(url_for('root'))
         return render_template('login.html')
 
     email = request.form.get('email', '').strip().lower()
     password = request.form.get('password', '')
 
+    
+    admin = mongo.db.admins.find_one({"email": email})
+    if admin and bcrypt.check_password_hash(admin['password'], password):
+        session.clear()
+        session.permanent = True
+        session['admin'] = email
+        return redirect(url_for('admin_dashboard'))
+
+    
     user = mongo.db.users.find_one({"email": email})
     if user and bcrypt.check_password_hash(user['password'], password):
         session.clear()
         session.permanent = True
         session['user'] = email
         return redirect(url_for('root'))
+
     return render_template('login.html', error="Invalid email or password")
 
 @app.route('/guest')
@@ -171,8 +189,209 @@ def summarize():
         logger.error(f"Processing failed: {str(e)}")
         return jsonify({"error": str(e)}), 500
     finally:
-        if filepath and os.path.exists(filepath):
-            os.remove(filepath)
+        try:
+            if filepath and os.path.exists(filepath):
+                os.remove(filepath)
+        except PermissionError:
+            logger.warning(f"Could not delete file {filepath}, will try again later.")
+
+
+@app.route('/save_summary', methods=['POST'])
+def save_summary():
+    if 'user' not in session:
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        data = request.get_json()
+        summary_data = {
+            "user_email": session['user'],
+            "title": data.get('title', 'Untitled Summary'),
+            "filename": data.get('filename', ''),
+            "content": data.get('content', ''),
+            "summary": data.get('summary', []),
+            "jargon": data.get('jargon', {}),
+            "created_at": datetime.utcnow()
+        }
+        
+        result = mongo.db.summaries.insert_one(summary_data)
+        return jsonify({"success": True, "id": str(result.inserted_id)})
+    except Exception as e:
+        logger.error(f"Failed to save summary: {str(e)}")
+        return jsonify({"error": "Failed to save summary"}), 500
+
+@app.route('/get_summaries', methods=['GET'])
+def get_summaries():
+    if 'user' not in session:
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        summaries = list(mongo.db.summaries.find(
+            {"user_email": session['user']},
+            {"title": 1, "filename": 1, "created_at": 1}
+        ).sort("created_at", -1))
+        
+        for summary in summaries:
+            summary['_id'] = str(summary['_id'])
+            summary['created_at'] = summary['created_at'].strftime("%Y-%m-%d %H:%M")
+        
+        return jsonify(summaries)
+    except Exception as e:
+        logger.error(f"Failed to fetch summaries: {str(e)}")
+        return jsonify({"error": "Failed to fetch summaries"}), 500
+
+@app.route('/get_summary/<summary_id>', methods=['GET'])
+def get_summary(summary_id):
+    if 'user' not in session:
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        summary = mongo.db.summaries.find_one({
+            "_id": ObjectId(summary_id),
+            "user_email": session['user']
+        })
+        
+        if not summary:
+            return jsonify({"error": "Summary not found"}), 404
+        
+        summary['_id'] = str(summary['_id'])
+        summary['created_at'] = summary['created_at'].strftime("%Y-%m-%d %H:%M")
+        
+        return jsonify(summary)
+    except Exception as e:
+        logger.error(f"Failed to fetch summary: {str(e)}")
+        return jsonify({"error": "Failed to fetch summary"}), 500
+
+
+@app.route('/admin/dashboard')
+def admin_dashboard():
+    if 'admin' not in session:
+        return redirect(url_for('login'))
+    return render_template('dashboard.html', admin=session['admin'])
+
+@app.route('/admin/api/loadtests')
+def api_loadtests():
+    if 'admin' not in session:
+        return jsonify({"error": "Unauthorized"}), 403
+    tests = list(mongo.db.loadtests.find().sort("created_at", -1))
+    for t in tests:
+        t['_id'] = str(t['_id'])
+        t['created_at'] = t['created_at'].strftime("%Y-%m-%d %H:%M")
+    return jsonify(tests)
+
+@app.route('/admin/api/experiments')
+def api_experiments():
+    if 'admin' not in session:
+        return jsonify({"error": "Unauthorized"}), 403
+    experiments = list(mongo.db.experiments.find().sort("created_at", -1))
+    for e in experiments:
+        e['_id'] = str(e['_id'])
+        e['created_at'] = e['created_at'].strftime("%Y-%m-%d %H:%M")
+    return jsonify(experiments)
+
+@app.route('/admin/run-loadtest', methods=['POST'])
+def run_loadtest():
+    if 'admin' not in session:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    concurrency_levels = [1, 5, 10, 20]
+    results = []
+    for c in concurrency_levels:
+        durations = []
+        errors = 0
+        start_time = time.time()
+
+        def simulate_request(_):
+            try:
+                t0 = time.time()
+                # Replace with your summarizer endpoint if needed
+                r = requests.post("http://localhost:5000/summarize",
+                                  files={"file": ("test.txt", b"Test load")})
+                dt = time.time() - t0
+                if r.status_code != 200:
+                    raise Exception("Bad response")
+                return dt
+            except:
+                return None
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=c) as executor:
+            futures = [executor.submit(simulate_request, i) for i in range(20)]
+            for f in concurrent.futures.as_completed(futures):
+                dt = f.result()
+                if dt is None:
+                    errors += 1
+                else:
+                    durations.append(dt)
+
+        total_time = time.time() - start_time
+        p95 = float(np.percentile(durations, 95)) if durations else None
+
+        result = {
+            "concurrency": c,
+            "rps": len(durations) / total_time if total_time > 0 else 0,
+            "p95_ms": p95 * 1000 if p95 else None,
+            "error_rate": errors / 20,
+            "created_at": datetime.utcnow()
+        }
+        mongo.db.loadtests.insert_one(result)
+        results.append(result)
+
+    return jsonify(results)
+
+@app.route('/admin/run-eval', methods=['POST'])
+def run_eval():
+    if 'admin' not in session:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    from rouge_score import rouge_scorer
+    import textstat
+
+    files = [f for f in os.listdir("eval_data") if f.endswith(".txt")]
+    scorer = rouge_scorer.RougeScorer(['rougeL'], use_stemmer=True)
+
+    results = []
+    for f in files:
+        path = os.path.join("eval_data", f)
+        with open(path, "r", encoding="utf-8") as fp:
+            doc = fp.read()
+
+        t0 = time.time()
+        r = requests.post("http://localhost:5000/summarize",
+                          files={"file": (f, doc.encode("utf-8"))})
+        latency = time.time() - t0
+        summary = r.json().get("summary", "") if r.status_code == 200 else ""
+
+        rougeL = scorer.score(doc, summary)["rougeL"].fmeasure if summary else 0
+        fk_grade = textstat.flesch_kincaid_grade(summary) if summary else None
+
+        record = {
+            "file": f,
+            "rougeL": rougeL,
+            "fk_grade": fk_grade,
+            "latency_s": latency,
+            "created_at": datetime.utcnow()
+        }
+        mongo.db.experiments.insert_one(record)
+        results.append(record)
+
+    return jsonify(results)
+
+@app.route('/admin/export/experiments.csv')
+def export_experiments():
+    if 'admin' not in session:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    docs = list(mongo.db.experiments.find().sort("created_at", -1))
+    si = io.StringIO()
+    cw = csv.writer(si)
+    cw.writerow(["file", "rougeL", "fk_grade", "latency_s", "created_at"])
+    for d in docs:
+        cw.writerow([d.get("file"), d.get("rougeL"), d.get("fk_grade"), d.get("latency_s"),
+                     d.get("created_at").strftime("%Y-%m-%d %H:%M")])
+    output = io.BytesIO()
+    output.write(si.getvalue().encode())
+    output.seek(0)
+    return send_file(output, mimetype="text/csv", download_name="experiments.csv", as_attachment=True)
+
 
 if __name__ == '__main__':
 
