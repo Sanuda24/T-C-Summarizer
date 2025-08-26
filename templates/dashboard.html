@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1>Admin Dashboard</h1>
+  <p>Welcome, {{ admin }}</p>
+  <a href="/logout">Logout</a>
+  <hr>
+  <button id="runLoadTest">Run Load Test</button>
+  <button id="runEval">Run Offline Evaluation</button>
+  <a href="/admin/export/experiments.csv">Export Experiments CSV</a>
+
+  <h2>Experiment Metrics</h2>
+  <canvas id="experimentChart"></canvas>
+
+  <h2>Load Test p95 Latency</h2>
+  <canvas id="loadChart"></canvas>
+
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

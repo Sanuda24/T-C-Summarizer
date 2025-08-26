@@ -7,47 +7,78 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
-    <div class="header">
-        <div class="logo">Legal Document Summarizer</div>
-
-        <div class="profile-menu">
-            <button id="profileBtn" class="profile-btn">
-                <i class="fa-regular fa-user"></i>
-                <span>Profile</span>
-                <i class="fa-solid fa-caret-down"></i>
-            </button>
-            <div class="dropdown" id="dropdownMenu">
-                {% if user %}
-                    <a href="{{ url_for('settings') }}"><i class="fa-solid fa-gear"></i> Settings</a>
-                    <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-                {% elif guest %}
-                    <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
-                    <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Logout (Guest)</a>
-                {% else %}
-                    <a href="{{ url_for('login') }}"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
-                {% endif %}
+<body {% if guest %}data-guest="true"{% endif %}>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <button class="new-chat-btn" id="newChatBtn">
+            <i class="fas fa-plus"></i>
+            New Chat
+        </button>
+        <div class="history-section">
+            <h3>History</h3>
+            <div class="history-list" id="historyList">
+                <!-- History items will be dynamically added here -->
             </div>
         </div>
     </div>
-    
-    <div class="chat-container" id="chatContainer">
-        <div class="message">
-            <p>Upload a legal document (PDF, DOCX, TXT, Image) to get a simplified summary and explanation of legal terms.</p>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="logo">Legal Document Summarizer</div>
+
+            <div class="profile-menu">
+                <button id="profileBtn" class="profile-btn">
+                    <i class="fa-regular fa-user"></i>
+                    <span>Profile</span>
+                    <i class="fa-solid fa-caret-down"></i>
+                </button>
+                <div class="dropdown" id="dropdownMenu">
+                    {% if user %}
+                        <a href="{{ url_for('settings') }}"><i class="fa-solid fa-gear"></i> Settings</a>
+                        <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                    {% elif guest %}
+                        <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+                        <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Logout (Guest)</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-container" id="chatContainer">
+            <div class="message">
+                <p>Upload a legal document (PDF, DOCX, TXT, Image) to get a simplified summary and explanation of legal terms.</p>
+            </div>
+        </div>
+        
+        <div class="input-area">
+            <input type="file" id="fileUpload" class="upload-btn" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg,.bmp">
+            <label for="fileUpload" class="upload-label" id="uploadLabel">
+                <i class="fas fa-file-upload"></i>
+                <span>Upload Document</span>
+            </label>
         </div>
     </div>
-    
-    <div class="input-area">
-        <input type="file" id="fileUpload" class="upload-btn" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg,.bmp">
-        <label for="fileUpload" class="upload-label" id="uploadLabel">
-            <i class="fas fa-file-upload"></i>
-            <span>Upload Document</span>
-        </label>
-    </div>
 
+<div class="overlay" id="overlay"></div>
+
+    <!-- Options Menu (initially hidden) -->
+    <div class="options-menu" id="optionsMenu">
+        <button class="option-btn" id="downloadPdfBtn">
+            <i class="fas fa-file-pdf"></i> Download as PDF
+        </button>
+        <button class="option-btn" id="saveToHistoryBtn">
+            <i class="fas fa-save"></i> Save to History
+        </button>
+    </div>
     
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-    
     <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html>
