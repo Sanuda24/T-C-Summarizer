@@ -3,21 +3,40 @@
 <head>
   <title>Admin Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 </head>
 <body>
-  <h1>Admin Dashboard</h1>
-  <p>Welcome, {{ admin }}</p>
-  <a href="/logout">Logout</a>
-  <hr>
-  <button id="runLoadTest">Run Load Test</button>
-  <button id="runEval">Run Offline Evaluation</button>
-  <a href="/admin/export/experiments.csv">Export Experiments CSV</a>
+  <div class="dashboard-container">
+    <div class="dashboard-header">
+      <h1>Admin Dashboard</h1>
+      <div class="user-info">
+        <p>Welcome, {{ admin }}</p>
+        <a href="/logout" class="logout-btn">Logout</a>
+      </div>
+    </div>
+    
+    <div class="dashboard-actions">
+      <button id="runLoadTest" class="action-btn">Run Load Test</button>
+      <button id="runEval" class="action-btn">Run Offline Evaluation</button>
+      <a href="/admin/export/experiments.csv" class="action-btn">Export Experiments CSV</a>
+    </div>
 
-  <h2>Experiment Metrics</h2>
-  <canvas id="experimentChart"></canvas>
+    <div class="charts-container">
+      <div class="chart-card">
+        <h2>Experiment Metrics</h2>
+        <div class="chart-wrapper">
+          <canvas id="experimentChart"></canvas>
+        </div>
+      </div>
 
-  <h2>Load Test p95 Latency</h2>
-  <canvas id="loadChart"></canvas>
+      <div class="chart-card">
+        <h2>Load Test p95 Latency</h2>
+        <div class="chart-wrapper">
+          <canvas id="loadChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 </body>

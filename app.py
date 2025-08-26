@@ -14,6 +14,8 @@ import time, concurrent.futures
 import numpy as np
 import requests
 import io, csv
+from rouge_score import rouge_scorer
+import textstat
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 app.config.update(
@@ -304,7 +306,7 @@ def run_loadtest():
             try:
                 t0 = time.time()
                 # Replace with your summarizer endpoint if needed
-                r = requests.post("http://localhost:5000/summarize",
+                r = requests.post("http://127.0.0.1:5000/summarize",
                                   files={"file": ("test.txt", b"Test load")})
                 dt = time.time() - t0
                 if r.status_code != 200:
@@ -342,8 +344,7 @@ def run_eval():
     if 'admin' not in session:
         return jsonify({"error": "Unauthorized"}), 403
 
-    from rouge_score import rouge_scorer
-    import textstat
+
 
     files = [f for f in os.listdir("eval_data") if f.endswith(".txt")]
     scorer = rouge_scorer.RougeScorer(['rougeL'], use_stemmer=True)
@@ -354,11 +355,22 @@ def run_eval():
         with open(path, "r", encoding="utf-8") as fp:
             doc = fp.read()
 
+        # Ensure doc is a string
+        if isinstance(doc, list):
+            doc = " ".join(doc)
+
         t0 = time.time()
-        r = requests.post("http://localhost:5000/summarize",
+        r = requests.post("http://127.0.0.1:5000/summarize",
                           files={"file": (f, doc.encode("utf-8"))})
         latency = time.time() - t0
-        summary = r.json().get("summary", "") if r.status_code == 200 else ""
+
+        summary = ""
+        if r.status_code == 200:
+            summary = r.json().get("summary", "")
+        
+        # Ensure summary is a string
+        if isinstance(summary, list):
+            summary = " ".join(summary)
 
         rougeL = scorer.score(doc, summary)["rougeL"].fmeasure if summary else 0
         fk_grade = textstat.flesch_kincaid_grade(summary) if summary else None
@@ -374,6 +386,7 @@ def run_eval():
         results.append(record)
 
     return jsonify(results)
+
 
 @app.route('/admin/export/experiments.csv')
 def export_experiments():
