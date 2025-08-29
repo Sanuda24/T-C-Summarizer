@@ -481,7 +481,7 @@
     transition: width 0.3s ease;
 }
 
-/* Options Menu */
+
 .options-menu {
     position: absolute;
     background: var(--card);
@@ -532,7 +532,7 @@
   transform: translateY(0);
 }
 
-/* Overlay */
+
 .overlay {
     position: fixed;
     top: 0;
@@ -552,7 +552,7 @@
 }
 
 
-/* Home button styles */
+
 .home-btn {
     display: flex;
     align-items: center;
@@ -573,7 +573,7 @@
     transform: translateY(-2px);
 }
 
-/* Adjust sidebar header layout */
+
 .sidebar-header {
     display: flex;
     flex-direction: column;
@@ -584,7 +584,7 @@
     border-bottom: 1px solid var(--border);
 }
 
-/* For larger screens, show buttons in a row */
+
 @media (min-width: 769px) {
     .sidebar-header {
         flex-direction: row;

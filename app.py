@@ -328,7 +328,7 @@ def run_loadtest():
         def simulate_request(_):
             try:
                 t0 = time.time()
-                # Replace with your summarizer endpoint if needed
+                
                 r = requests.post("http://127.0.0.1:5000/summarize",
                                   files={"file": ("test.txt", b"Test load")})
                 dt = time.time() - t0
@@ -391,7 +391,7 @@ def run_eval():
         if r.status_code == 200:
             summary = r.json().get("summary", "")
         
-        # Ensure summary is a string
+        
         if isinstance(summary, list):
             summary = " ".join(summary)
 
