@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Lens - AI Terms & Conditions Summarizer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/homepage.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-scale-balanced"></i>
+                <span>Legal Lense</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#about">About</a>
+                {% if user or guest %}
+                    <a href="{{ url_for('root') }}" class="nav-btn">Summarizer</a>
+                    <a href="{{ url_for('logout') }}" class="nav-btn">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="nav-btn">Login</a>
+                    <a href="{{ url_for('signup') }}" class="nav-btn secondary">Sign Up</a>
+                {% endif %}
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>Understand Terms & Conditions in <span class="highlight">Seconds</span></h1>
+                <p>Our AI-powered tool transforms complex legal documents into simple, understandable summaries. No more skipping through pages of legal jargon.</p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('root') if user or guest else url_for('login') }}" class="cta-button">
+                        <i class="fas fa-bolt"></i>
+                        Summarize Now
+                    </a>
+                    <a href="#how-it-works" class="secondary-button">
+                        <i class="fas fa-circle-info"></i>
+                        How It Works
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">90%+</span>
+                        <span class="stat-label">Accuracy</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">10x</span>
+                        <span class="stat-label">Faster Reading</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="visual-card">
+                    <div class="card-header">
+                        <div class="card-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="document-preview">
+                            <div class="doc-line long"></div>
+                            <div class="doc-line medium"></div>
+                            <div class="doc-line long"></div>
+                            <div class="doc-line short"></div>
+                        </div>
+                        <div class="summary-preview">
+                            <div class="summary-icon">
+                                <i class="fas fa-sparkles"></i>
+                            </div>
+                            <div class="summary-text">
+                                <div class="summary-line"></div>
+                                <div class="summary-line"></div>
+                                <div class="summary-line short"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Disclaimer Banner -->
+    <div class="disclaimer-banner">
+        <div class="disclaimer-content">
+            <i class="fas fa-exclamation-circle"></i>
+            <p><strong>Disclaimer:</strong> This tool provides AI-generated summaries for informational purposes only and does not constitute legal advice. Always consult with a qualified legal professional for important decisions.</p>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2>Powerful Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3>Multi-Format Support</h3>
+                    <p>Upload PDF, DOCX, TXT, or image files. Our OCR technology extracts text from any document.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>AI-Powered Analysis</h3>
+                    <p>Fine-tuned BART model specialized in legal documents provides accurate and relevant summaries.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-gauge-high"></i>
+                    </div>
+                    <h3>Fast Processing</h3>
+                    <p>Get summaries in seconds instead of spending hours reading complex legal text.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3>History & Export</h3>
+                    <p>Save your summaries for future reference and export them as PDF documents.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <h2>How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Upload Your Document</h3>
+                        <p>Select any Terms & Conditions document in PDF, DOCX, TXT, or image format.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>AI Processing</h3>
+                        <p>Our specialized model analyzes the document and identifies key clauses and terms.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Receive Your Summary</h3>
+                        <p>Get a concise, easy-to-understand summary with jargon explanations.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Make Informed Decisions</h3>
+                        <p>Understand what you're agreeing to without spending hours reading.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Understand Your Terms & Conditions?</h2>
+            <p>Stop blindly accepting legal documents. Know what you're agreeing to in minutes.</p>
+            <a href="{{ url_for('root') if user or guest else url_for('login') }}" class="cta-button large">
+                <i class="fas fa-bolt"></i>
+                Start Summarizing Now
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="nav-logo">
+                        <i class="fas fa-scale-balanced"></i>
+                        <span>Legal Lens</span>
+                    </div>
+                    <p>Making legal documents accessible to everyone through AI technology.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <a href="#features">Features</a>
+                    <a href="#how-it-works">How It Works</a>
+                    <a href="#about">About</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Legal</h4>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Disclaimer</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Legal Lens. Part of BSc (Hons) in Software Engineering Thesis Project.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/homepage.js') }}"></script>
+</body>
+</html>

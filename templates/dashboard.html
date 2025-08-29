@@ -3,40 +3,104 @@
 <head>
   <title>Admin Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 </head>
 <body>
   <div class="dashboard-container">
     <div class="dashboard-header">
-      <h1>Admin Dashboard</h1>
+      <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
       <div class="user-info">
         <p>Welcome, {{ admin }}</p>
-        <a href="/logout" class="logout-btn">Logout</a>
+        <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
       </div>
     </div>
     
+    <!-- Stats Cards -->
+    <div class="dashboard-stats">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-bolt"></i>
+        </div>
+        <div class="stat-content">
+          <h3>Total Load Tests</h3>
+          <div class="value" id="totalTests">0</div>
+          <div class="change positive">
+            <i class="fas fa-arrow-up"></i> Updated recently
+          </div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-flask"></i>
+        </div>
+        <div class="stat-content">
+          <h3>Total Experiments</h3>
+          <div class="value" id="totalExperiments">0</div>
+          <div class="change positive">
+            <i class="fas fa-arrow-up"></i> Updated recently
+          </div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-content">
+          <h3>Latest p95 Latency</h3>
+          <div class="value" id="latestLatency">-</div>
+          <div class="change">
+            <i class="fas fa-info-circle"></i> From last test
+          </div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="stat-content">
+          <h3>Latest ROUGE-L Score</h3>
+          <div class="value" id="latestRouge">-</div>
+          <div class="change">
+            <i class="fas fa-info-circle"></i> From last evaluation
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Action Buttons -->
     <div class="dashboard-actions">
-      <button id="runLoadTest" class="action-btn">Run Load Test</button>
-      <button id="runEval" class="action-btn">Run Offline Evaluation</button>
-      <a href="/admin/export/experiments.csv" class="action-btn">Export Experiments CSV</a>
+      <button id="runLoadTest" class="action-btn">
+        <i class="fas fa-bolt"></i> Run Load Test
+      </button>
+      <button id="runEval" class="action-btn">
+        <i class="fas fa-flask"></i> Run Offline Evaluation
+      </button>
+      <a href="/admin/export/experiments.csv" class="action-btn">
+        <i class="fas fa-download"></i> Export Experiments CSV
+      </a>
     </div>
 
+    <!-- Charts -->
     <div class="charts-container">
       <div class="chart-card">
-        <h2>Experiment Metrics</h2>
+        <h2><i class="fas fa-chart-bar"></i> Experiment Metrics</h2>
         <div class="chart-wrapper">
           <canvas id="experimentChart"></canvas>
         </div>
       </div>
 
       <div class="chart-card">
-        <h2>Load Test p95 Latency</h2>
+        <h2><i class="fas fa-tachometer-alt"></i> Load Test Performance</h2>
         <div class="chart-wrapper">
           <canvas id="loadChart"></canvas>
         </div>
       </div>
     </div>
-  </div>
+    
 
   <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 </body>
