@@ -311,5 +311,109 @@ document.addEventListener('DOMContentLoaded', () => {
     function formatDateForFilename(date) {
         return date.toISOString().slice(0, 10) + '_' + date.toTimeString().slice(0, 8).replace(/:/g, '-');
     }
+
+
+function addHistoryDeleteButton(historyItem, itemId) {
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'history-delete-btn';
+    deleteBtn.innerHTML = '<i class="fas fa-ellipsis-v"></i>';
+    
+    deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); 
+        showHistoryOptionsMenu(e.target, itemId);
+    });
+    
+    historyItem.appendChild(deleteBtn);
+}
+
+
+function showHistoryOptionsMenu(target, itemId) {
+    let historyOptionsMenu = document.getElementById('historyOptionsMenu');
+    if (!historyOptionsMenu) {
+        historyOptionsMenu = document.createElement('div');
+        historyOptionsMenu.id = 'historyOptionsMenu';
+        historyOptionsMenu.className = 'history-options-menu';
+        historyOptionsMenu.innerHTML = `
+            <button class="history-option-btn delete-history-btn">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+        `;
+        document.body.appendChild(historyOptionsMenu);
+        
+        historyOptionsMenu.querySelector('.delete-history-btn').addEventListener('click', () => {
+            deleteHistoryItem(itemId);
+            historyOptionsMenu.classList.remove('active');
+        });
+    }
+    
+    const rect = target.getBoundingClientRect();
+    historyOptionsMenu.style.top = (rect.bottom + window.scrollY) + 'px';
+    historyOptionsMenu.style.left = (rect.left + window.scrollX - 100) + 'px';
+    historyOptionsMenu.classList.add('active');
+    
+    const clickHandler = (e) => {
+        if (!historyOptionsMenu.contains(e.target) && e.target !== target) {
+            historyOptionsMenu.classList.remove('active');
+            document.removeEventListener('click', clickHandler);
+        }
+    };
+    
+    setTimeout(() => {
+        document.addEventListener('click', clickHandler);
+    }, 0);
+}
+
+
+async function deleteHistoryItem(itemId) {
+    try {
+        const response = await fetch(`/delete_summary/${itemId}`, {
+            method: 'DELETE'
+        });
+        
+        if (!response.ok) throw new Error('Failed to delete summary');
+        
+        const historyItem = document.querySelector(`.history-item[data-id="${itemId}"]`);
+        if (historyItem) {
+            historyItem.remove();
+        }
+        
+        if (document.querySelectorAll('.history-item').length === 0) {
+            historyList.innerHTML = '<div class="history-empty">No saved summaries yet</div>';
+        }
+    } catch (error) {
+        console.error('Error deleting summary:', error);
+        alert('Failed to delete summary. Please try again.');
+    }
+}
+
+function addHistoryItem(item) {
+    const historyItem = document.createElement('div');
+    historyItem.className = 'history-item';
+    historyItem.dataset.id = item._id;
+    
+    historyItem.innerHTML = `
+        <div class="history-item-content">
+            <div class="history-item-title">${item.title}</div>
+            <div class="history-item-filename">${item.filename}</div>
+            <div class="history-item-date">${item.created_at}</div>
+        </div>
+    `;
+    
+    historyItem.addEventListener('click', (e) => {
+        if (!e.target.closest('.history-delete-btn')) {
+            loadHistoryItem(item._id);
+        }
+    });
+    
+    addHistoryDeleteButton(historyItem, item._id);
+    
+    historyList.appendChild(historyItem);
+}
+
+
+
+
+
+
 });
 

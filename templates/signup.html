@@ -4,29 +4,69 @@
     <meta charset="UTF-8">
     <title>Sign Up • Legal Document Summarizer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="header">
-        <div class="logo">Legal Document Summarizer</div>
+        <div class="logo">Legal Lense</div>
     </div>
 
     <div class="chat-container">
         <div class="auth-card">
-            <h2>Create Account</h2>
+            <h2>Create Your Account</h2>
             {% if error %}<p class="form-error">{{ error }}</p>{% endif %}
             <form method="POST" class="auth-form" id="signupForm">
                 <input type="email" name="email" placeholder="Email" required autocomplete="email">
-                <input type="password" name="password" placeholder="Password" required autocomplete="new-password">
+                <input type="password" name="password" id="password" placeholder="Password" required autocomplete="new-password">
+                <div class="password-strength">
+                    <div class="strength-bar" id="strengthBar"></div>
+                </div>
+                <div class="strength-text" id="strengthText">Password strength</div>
                 <div class="hint">Password must be at least 6 characters and include letters & numbers.</div>
-                <button type="submit">Sign Up</button>
+                <button type="submit"><i class="fas fa-user-plus"></i> Sign Up</button>
             </form>
             <div class="auth-links">
-                <a href="{{ url_for('login') }}">Back to Login</a>
+                <a href="{{ url_for('login') }}"><i class="fas fa-arrow-left"></i> Back to Login</a>
             </div>
         </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+    <script>
+        // Password strength indicator
+        const passwordInput = document.getElementById('password');
+        const strengthBar = document.getElementById('strengthBar');
+        const strengthText = document.getElementById('strengthText');
+        
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            
+            if (password.length >= 6) strength += 1;
+            if (password.match(/[a-z]/)) strength += 1;
+            if (password.match(/[A-Z]/)) strength += 1;
+            if (password.match(/[0-9]/)) strength += 1;
+            if (password.match(/[^a-zA-Z0-9]/)) strength += 1;
+            
+            // Update strength bar and text
+            strengthBar.className = 'strength-bar';
+            if (password.length === 0) {
+                strengthText.textContent = 'Password strength';
+            } else if (strength <= 2) {
+                strengthBar.classList.add('strength-weak');
+                strengthText.textContent = 'Weak password';
+                strengthText.style.color = '#ef4444';
+            } else if (strength <= 4) {
+                strengthBar.classList.add('strength-medium');
+                strengthText.textContent = 'Medium strength';
+                strengthText.style.color = '#f59e0b';
+            } else {
+                strengthBar.classList.add('strength-strong');
+                strengthText.textContent = 'Strong password';
+                strengthText.style.color = '#10b981';
+            }
+        });
+    </script>
 </body>
 </html>

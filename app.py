@@ -48,11 +48,15 @@ def is_valid_password(pw: str) -> bool:
         and re.search(r"\d", pw) is not None
     )
 
+@app.route('/home')
+def home():
+    return render_template('homepage.html', user=session.get('user'), guest=session.get('guest'))
+
 
 @app.route('/')
 def root():
     if 'user' not in session and 'guest' not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('home'))
     return render_template('index.html', user=session.get('user'), guest=session.get('guest'))
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -220,6 +224,25 @@ def save_summary():
     except Exception as e:
         logger.error(f"Failed to save summary: {str(e)}")
         return jsonify({"error": "Failed to save summary"}), 500
+    
+@app.route('/delete_summary/<summary_id>', methods=['DELETE'])
+def delete_summary(summary_id):
+    if 'user' not in session:
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        result = mongo.db.summaries.delete_one({
+            "_id": ObjectId(summary_id),
+            "user_email": session['user']
+        })
+        
+        if result.deleted_count == 0:
+            return jsonify({"error": "Summary not found"}), 404
+        
+        return jsonify({"success": True})
+    except Exception as e:
+        logger.error(f"Failed to delete summary: {str(e)}")
+        return jsonify({"error": "Failed to delete summary"}), 500
 
 @app.route('/get_summaries', methods=['GET'])
 def get_summaries():
@@ -384,8 +407,10 @@ def run_eval():
         }
         mongo.db.experiments.insert_one(record)
         results.append(record)
+        
 
     return jsonify(results)
+
 
 
 @app.route('/admin/export/experiments.csv')

@@ -1,17 +1,21 @@
 // dropdown
-(function () {
+document.addEventListener('DOMContentLoaded', function() {
   const btn = document.getElementById('profileBtn');
   const menu = document.getElementById('dropdownMenu');
+  
   if (btn && menu) {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       menu.classList.toggle('show');
     });
-    document.addEventListener('click', () => {
-      menu.classList.remove('show');
+    
+    document.addEventListener('click', (e) => {
+      if (!menu.contains(e.target) && e.target !== btn) {
+        menu.classList.remove('show');
+      }
     });
   }
-})();
+});
 
 // simple password validation
 function passesRule(pw) {
@@ -22,7 +26,7 @@ function passesRule(pw) {
   return true;
 }
 
-(function () {
+document.addEventListener('DOMContentLoaded', function() {
   const signupForm = document.getElementById('signupForm');
   if (signupForm) {
     signupForm.addEventListener('submit', (e) => {
@@ -44,4 +48,4 @@ function passesRule(pw) {
       }
     });
   }
-})();
+});

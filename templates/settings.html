@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>Settings • Legal Document Summarizer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="header">
@@ -16,33 +17,33 @@
 
     <div class="chat-container">
         <div class="auth-card">
-            <h2>Update Email</h2>
-            {% if error %}<p class="form-error">{{ error }}</p>{% endif %}
+            <h2><i class="fas fa-envelope"></i> Update Email</h2>
             {% if success %}<p class="form-success">{{ success }}</p>{% endif %}
             <form method="POST" class="auth-form">
                 <input type="hidden" name="action" value="change_email">
                 <input type="email" name="new_email" placeholder="New Email" required>
-                <button type="submit">Change Email</button>
+                <button type="submit"><i class="fas fa-save"></i> Change Email</button>
             </form>
         </div>
 
         <div class="auth-card">
-            <h2>Change Password</h2>
+            <h2><i class="fas fa-lock"></i> Change Password</h2>
             <form method="POST" class="auth-form" id="changePasswordForm">
                 <input type="hidden" name="action" value="change_password">
                 <input type="password" name="old_password" placeholder="Old Password" required autocomplete="current-password">
                 <input type="password" name="new_password" placeholder="New Password" required autocomplete="new-password">
                 <div class="hint">Password must be at least 6 characters and include letters & numbers.</div>
-                <button type="submit">Change Password</button>
+                <button type="submit"><i class="fas fa-key"></i> Change Password</button>
             </form>
         </div>
 
-               <form action="{{ url_for('root') }}" method="get" style="margin-top: 10px;">
-        <button type="submit" class="back-btn">Back to Summarizer</button>
-    </form>
+        {% if error %}<p class="form-error">{{ error }}</p>{% endif %}
+
+        <form action="{{ url_for('root') }}" method="get">
+            <button type="submit" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Summarizer</button>
+        </form>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
 </body>
 </html>

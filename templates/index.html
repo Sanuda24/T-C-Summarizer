@@ -3,32 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Legal Document Summarizer</title>
+    <title>Legal Lense</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/Indexstyle.css') }}">
 </head>
 <body {% if guest %}data-guest="true"{% endif %}>
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>Processing your document...</p>
+        </div>
+    </div>
+
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <button class="new-chat-btn" id="newChatBtn">
-            <i class="fas fa-plus"></i>
-            New Chat
-        </button>
+        <div class="sidebar-header">
+            <button class="new-chat-btn" id="newChatBtn">
+                <i class="fas fa-plus"></i>
+                New Chat
+            </button>
+            <a href="{{ url_for('home') }}" class="home-btn">
+            <i class="fas fa-home"></i>
+            Home
+        </a>
+        
+            <button class="close-sidebar" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
         <div class="history-section">
             <h3>History</h3>
             <div class="history-list" id="historyList">
-                <!-- History items will be dynamically added here -->
             </div>
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content">
         <div class="header">
             <button class="sidebar-toggle" id="sidebarToggle">
                 <i class="fas fa-bars"></i>
             </button>
-            <div class="logo">Legal Document Summarizer</div>
+            <div class="logo">
+                <i class="fas fa-scale-balanced"></i>
+                Legal Lense
+            </div>
 
             <div class="profile-menu">
                 <button id="profileBtn" class="profile-btn">
@@ -51,23 +69,50 @@
         </div>
         
         <div class="chat-container" id="chatContainer">
-            <div class="message">
-                <p>Upload a legal document (PDF, DOCX, TXT, Image) to get a simplified summary and explanation of legal terms.</p>
+            <div class="welcome-message">
+                <div class="welcome-icon">
+                    <i class="fas fa-scale-balanced"></i>
+                </div>
+                <h2>Welcome to Legal Lense</h2>
+                <p>Upload a legal document (PDF, DOCX, TXT, Image) to get a simplified summary of the document.</p>
+                <div class="features-grid">
+                    <div class="feature">
+                        <i class="fas fa-file-contract"></i>
+                        <span>Document Analysis</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-gavel"></i>
+                        <span>Legal Jargon Simplified</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-history"></i>
+                        <span>History Tracking</span>
+                    </div>
+                </div>
+                <p class="disclaimer-note"><i class="fas fa-exclamation-triangle"></i> Disclaimer: This tool is not a substitute for professional legal advice.</p>
             </div>
         </div>
         
         <div class="input-area">
-            <input type="file" id="fileUpload" class="upload-btn" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg,.bmp">
-            <label for="fileUpload" class="upload-label" id="uploadLabel">
-                <i class="fas fa-file-upload"></i>
-                <span>Upload Document</span>
-            </label>
+            <div class="upload-container">
+                <input type="file" id="fileUpload" class="upload-btn" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg,.bmp">
+                <label for="fileUpload" class="upload-label" id="uploadLabel">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3>Upload Legal Document</h3>
+                    <p>Supported formats: PDF, DOCX, TXT, Images</p>
+                    <div class="upload-progress" id="uploadProgress">
+                        <div class="progress-bar"></div>
+                    </div>
+                </label>
+            </div>
         </div>
     </div>
 
-<div class="overlay" id="overlay"></div>
+    <div class="overlay" id="overlay"></div>
 
-    <!-- Options Menu (initially hidden) -->
+    
     <div class="options-menu" id="optionsMenu">
         <button class="option-btn" id="downloadPdfBtn">
             <i class="fas fa-file-pdf"></i> Download as PDF
