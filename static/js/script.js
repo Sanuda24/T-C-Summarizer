@@ -316,15 +316,16 @@ document.addEventListener('DOMContentLoaded', () => {
 function addHistoryDeleteButton(historyItem, itemId) {
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'history-delete-btn';
-    deleteBtn.innerHTML = '<i class="fas fa-ellipsis-v"></i>';
-    
+    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+
     deleteBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); 
-        showHistoryOptionsMenu(e.target, itemId);
+        e.stopPropagation();
+        deleteHistoryItem(itemId);
     });
-    
+
     historyItem.appendChild(deleteBtn);
 }
+
 
 
 function showHistoryOptionsMenu(target, itemId) {
@@ -369,14 +370,18 @@ async function deleteHistoryItem(itemId) {
         const response = await fetch(`/delete_summary/${itemId}`, {
             method: 'DELETE'
         });
-        
-        if (!response.ok) throw new Error('Failed to delete summary');
-        
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(result.error || 'Failed to delete summary');
+        }
+
         const historyItem = document.querySelector(`.history-item[data-id="${itemId}"]`);
         if (historyItem) {
             historyItem.remove();
         }
-        
+
         if (document.querySelectorAll('.history-item').length === 0) {
             historyList.innerHTML = '<div class="history-empty">No saved summaries yet</div>';
         }
